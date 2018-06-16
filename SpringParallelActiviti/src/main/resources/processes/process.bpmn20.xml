@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:activiti="http://activiti.org/bpmn" targetNamespace="Examples">
+	<process id="fixSystemProcess" name="Fix System Process"
+		isExecutable="true">
+		<startEvent id="thestart" name="Start"></startEvent>
+		<sequenceFlow id="flow1" sourceRef="thestart" targetRef="fork"></sequenceFlow>
+		<parallelGateway id="fork" name="Parallel Gateway - In"></parallelGateway>
+
+		<sequenceFlow sourceRef="fork" targetRef="domeetingtask"></sequenceFlow>
+		<userTask id="domeetingtask" name="Do Meeting"
+			activiti:assignee="${hardwareChecker.name}">
+			<documentation>
+				Make a Meeting.
+			</documentation>
+		</userTask>
+		<sequenceFlow sourceRef="domeetingtask" targetRef="endmeetingtask"></sequenceFlow>
+		<endEvent id="endmeetingtask" name="Meeting Ending"></endEvent>
+
+		<sequenceFlow sourceRef="fork" targetRef="hardwaretask"></sequenceFlow>
+		<userTask id="hardwaretask" name="Check Hardware"
+			activiti:assignee="${hardwareChecker.name}">
+			<documentation>
+				Check hardware of the System.
+			</documentation>
+		</userTask>
+		<sequenceFlow sourceRef="hardwaretask" targetRef="join"></sequenceFlow>
+
+		<sequenceFlow sourceRef="fork" targetRef="softwaretask"></sequenceFlow>
+		<userTask id="softwaretask" name="Check Software"
+			activiti:assignee="${softwareChecker.name}">
+			<documentation>
+				Check software of the System.
+			</documentation>
+		</userTask>
+		<sequenceFlow sourceRef="softwaretask" targetRef="firmwaretask"></sequenceFlow>
+		<userTask id="firmwaretask" name="Check Firmware"
+			activiti:assignee="${softwareChecker.name}">
+			<documentation>
+				Check firmware of the System.
+			</documentation>
+		</userTask>
+		<sequenceFlow sourceRef="firmwaretask" targetRef="join"></sequenceFlow>
+
+		<parallelGateway id="join" name="Parallel Gateway - OUT"></parallelGateway>
+		<sequenceFlow sourceRef="join" targetRef="usertaskreport"></sequenceFlow>
+		<userTask id="usertaskreport" name="Write Report"
+			activiti:assignee="${reporter.name}">
+			<documentation>
+				Write report for system checking.
+			</documentation>
+		</userTask>
+		<sequenceFlow sourceRef="usertaskreport" targetRef="notification"></sequenceFlow>
+
+		<scriptTask id="notification" scriptFormat="groovy">
+			<script>
+				println 'Send Report and finish Process.'
+			</script>
+		</scriptTask>
+
+		<sequenceFlow sourceRef="notification" targetRef="theend"></sequenceFlow>
+
+		<endEvent id="theend" name="End" />
+	</process>
+</definitions>
